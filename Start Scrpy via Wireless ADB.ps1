@@ -1,5 +1,5 @@
 <#  
-    Requires      : SCRCPY Installation and ADB.exe (ADB.EXE is included in SCRCPY Files)
+    Requires      : SCRCPY and ADB.exe (ADB.EXE is included in SCRCPY Files)
     Scrcpy Site   : https://github.com/Genymobile/scrcpy
     Description   : Wirelessly connect ADB to device, and Pair ADB if required
 #>
