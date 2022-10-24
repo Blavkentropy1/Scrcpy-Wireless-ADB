@@ -19,17 +19,22 @@ Write-Output -InputObject (.\adb.exe connect ${Phone_IP}:${port} ) -OutVariable 
 if ($Output -match "failed" -or $Output -match "no host") 
         {
         Write-Output -InputObject "Unable to connect, attempting to Pair Phone"
-        new-variable -name Pair_Port -value (Read-Host -Prompt "Pair Port")
-        new-variable -name Pair_Code -value (Read-Host -Prompt "Pair Code")
+        new-variable -name Pair_Code -force -value (Read-Host -Prompt "Pair Code")
+        new-variable -name Pair_Port -force -value (Read-Host -Prompt "Pair Port")
         .\adb.exe pair ${Phone_IP}:${Pair_Port} $Pair_Code 
         Write-Output -InputObject "Succesfully Paired, Connecting ADB"
         .\adb.exe connect ${Phone_IP}:${port}
         Write-Output -InputObject "Succesfully Connected, starting Scrcpy"
         .\scrcpy.exe --turn-screen-off
+        exit
+        }
+if ($Output -match "cannot connect to") 
+        {
+        Write-Output -InputObject "Incorrect port"
+        exit
         }
 Else {
        Write-Output -InputObject "Succesfully Connected, starting Scrcpy"
        .\scrcpy.exe --turn-screen-off
+       exit
        }
-       
-.\adb.exe disconnect ${Phone_IP}:${port}
