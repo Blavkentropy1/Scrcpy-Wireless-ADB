@@ -1,12 +1,13 @@
-<#  Scrcpy Site   : https://github.com/Genymobile/scrcpy
+<#  
+    Scrcpy Site   : https://github.com/Genymobile/scrcpy
     Description   : Wirelessly connect ADB to device, and Pair ADB if required
     ADB           : This script assumes this is set as a Enviromental variable, 
-                    or abd.exe is located in the Scrpy Location #>
+                    or abd.exe is located in the Scrpy Location 
+#>
                     
 Write-Output -InputObject "Start Scrcpy via Wireless ADB"
 
 #=========================[ BEGIN:Parameters  ]============================
-#Needs to be Set
 $Scrpy_Location = "C:\Scrcpy\scrcpy-win64-v1.24\"  #------------Needs a location
 $Phone_IP = "192.168.0.xxx"                        #------------Needs a IP
 $Port = Read-Host -Prompt "Connect Port"
@@ -30,4 +31,5 @@ Else {
        Write-Output -InputObject "Succesfully Connected, starting Scrcpy"
        scrcpy.exe --turn-screen-off
        }
+       
 adb disconnect ${Phone_IP}:${port}
