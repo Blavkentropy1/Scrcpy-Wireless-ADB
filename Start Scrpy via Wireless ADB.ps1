@@ -1,8 +1,7 @@
 <#  
+    Requires      : SCRCPY Installation and ADB.exe (ADB.EXE is included in SCRCPY Files)
     Scrcpy Site   : https://github.com/Genymobile/scrcpy
     Description   : Wirelessly connect ADB to device, and Pair ADB if required
-    ADB           : This script assumes this is set as a Enviromental variable, 
-                    or abd.exe is located in the Scrpy Location 
 #>
                     
 Write-Output -InputObject "Start Scrcpy via Wireless ADB"
