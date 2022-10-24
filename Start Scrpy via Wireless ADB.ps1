@@ -36,7 +36,8 @@ if ($Output -match "failed" -or $Output -match "no host")
         }
 if ($Output -match "cannot connect to") 
         {
-        Write-Output -InputObject "Incorrect port"
+        Write-Output -InputObject "Port appears to be incorrect"
+        Pause
         exit
         }
 Else {
