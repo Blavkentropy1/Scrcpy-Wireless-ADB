@@ -23,6 +23,7 @@ if ($Output -match "failed" -or $Output -match "no host")
         new-variable -name Pair_Port -value (Read-Host -Prompt "Pair Port")
         new-variable -name Pair_Code -value (Read-Host -Prompt "Pair Code")
         adb pair ${Phone_IP}:${Pair_Port} $Pair_Code 
+        Write-Output -InputObject "Succesfully Paired, Connecting ADB"
         adb connect ${Phone_IP}:${port}
         Write-Output -InputObject "Succesfully Connected, starting Scrcpy"
         scrcpy.exe --turn-screen-off
