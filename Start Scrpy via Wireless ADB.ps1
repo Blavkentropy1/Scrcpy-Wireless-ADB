@@ -16,6 +16,12 @@ cd $Scrpy_Location
 
 Write-Output -InputObject (.\adb.exe connect ${Phone_IP}:${port} ) -OutVariable Output
  
+if ($Output -match "connected to") 
+        {
+        Write-Output -InputObject "Succesfully Connected, starting Scrcpy"
+        .\scrcpy.exe --turn-screen-off
+        exit
+        }
 if ($Output -match "failed" -or $Output -match "no host") 
         {
         Write-Output -InputObject "Unable to connect, attempting to Pair Phone"
@@ -34,7 +40,7 @@ if ($Output -match "cannot connect to")
         exit
         }
 Else {
-       Write-Output -InputObject "Succesfully Connected, starting Scrcpy"
-       .\scrcpy.exe --turn-screen-off
+       Write-Output -InputObject "Unknown Output, Check error"
+       Pause
        exit
        }
