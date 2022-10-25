@@ -15,28 +15,29 @@ $Port = Read-Host -Prompt "Connect Port"
 cd $Scrpy_Location
 
 Write-Output -InputObject (.\adb.exe connect ${Phone_IP}:${port} ) -OutVariable Output
- 
+
 if ($Output -match "connected to") 
         {
         Write-Output -InputObject "Succesfully Connected, starting Scrcpy"
         .\scrcpy.exe --turn-screen-off
+        Write-Output -InputObject "Scrcpy Has been Closed. Exiting"
         exit
         }
 if ($Output -match "failed" -or $Output -match "no host") 
         {
         Write-Output -InputObject "Unable to connect, attempting to Pair Phone"
-        new-variable -name Pair_Code -force -value (Read-Host -Prompt "Pair Code")
-        new-variable -name Pair_Port -force -value (Read-Host -Prompt "Pair Port")
+        new-variable -name Pair_Code -value (Read-Host -Prompt "Pair Code")
+        new-variable -name Pair_Port -value (Read-Host -Prompt "Pair Port")
 
         Write-Output -InputObject ( .\adb.exe pair ${Phone_IP}:${Pair_Port} $Pair_Code ) -OutVariable Output_Pair
 
-        if ($Output_pair -match "Failed: Wrong password or connection was dropped." -or $Output_pair -match "Failed to parse address for pairing" -or $output_pair -match "failed to connect to") 
+  if ($Output_pair -match "Failed: Wrong password or connection was dropped." -or $Output_pair -match "Failed to parse address for pairing" -or $output_pair -match "failed to connect to") 
                 {
                 Write-Output -InputObject "Wrong Pair Pin, or Pair Port"
                 Pause
                 return
                 }              
-        Else    {
+   Else    {
                 Write-Output -InputObject "Succesfully Paired, Connecting ADB"
                 .\adb.exe connect ${Phone_IP}:${port}
                 Write-Output -InputObject "Succesfully Connected, starting Scrcpy"
@@ -44,7 +45,6 @@ if ($Output -match "failed" -or $Output -match "no host")
                 Write-Output -InputObject "Scrcpy Has been Closed. Exiting"
                 exit
             }
-
         }
 
 if ($Output -match "cannot connect to" -or $Output -match "bad port number") 
@@ -53,7 +53,6 @@ if ($Output -match "cannot connect to" -or $Output -match "bad port number")
         Pause
         exit
         }
-
 
 Else {
        Write-Output -InputObject "Unknown Output, Check error - Exiting"
