@@ -32,16 +32,17 @@ if ($Output -match "failed" -or $Output -match "no host")
         .\adb.exe connect ${Phone_IP}:${port}
         Write-Output -InputObject "Succesfully Connected, starting Scrcpy"
         .\scrcpy.exe --turn-screen-off
+        Write-Output -InputObject "Scrcpy Has been Closed. Exiting"
         exit
         }
 if ($Output -match "cannot connect to") 
         {
-        Write-Output -InputObject "Port appears to be incorrect"
+        Write-Output -InputObject "Port appears to be Incorrect Exiting"
         Pause
         exit
         }
 Else {
-       Write-Output -InputObject "Unknown Output, Check error"
+       Write-Output -InputObject "Unknown Output, Check error Exiting"
        Pause
        exit
        }
