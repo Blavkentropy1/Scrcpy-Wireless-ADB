@@ -7,12 +7,11 @@
 Write-Output -InputObject "Start Scrcpy via Wireless ADB"
 
 #=========================[ BEGIN:Parameters  ]============================
-$Scrpy_Location = "C:\Scrcpy\scrcpy-win64-v1.24\"  #------------Needs a location
+$Scrpy_Location = "C:\Scrcpy\scrcpy-win64-v1.24\"  #------------Needs to contain Scrpuy.exe and ADB.exe. If using Enviromental Variables, remove CD. 
 $Phone_IP = "192.168.0.xxx"                        #------------Needs a IP
 $Port = Read-Host -Prompt "Connect Port"
 #=========================[  END:Parameters   ]============================
 
-.\adb.exe disconnect
 cd $Scrpy_Location
 
 Write-Output -InputObject (.\adb.exe connect ${Phone_IP}:${port} ) -OutVariable Output
@@ -20,7 +19,7 @@ Write-Output -InputObject (.\adb.exe connect ${Phone_IP}:${port} ) -OutVariable 
 if ($Output -match "connected to") 
         {
         Write-Output -InputObject "Succesfully Connected, starting Scrcpy"
-        .\scrcpy.exe --tcpip=${Phone_IP}:${Port} --turn-screen-off
+        .\scrcpy.exe --tcpip=${Phone_IP}:${Port} --turn-screen-off --power-off-on-close
         Write-Output -InputObject "Scrcpy Has been Closed. Exiting"
         exit
         }
@@ -35,13 +34,13 @@ if ($Output -match "failed" -or $Output -match "no host")
                 {
                 Write-Output -InputObject "Wrong Pair Pin, or Pair Port"
                 Pause
-                return
+                exit
                 }              
    Else    {
                 Write-Output -InputObject "Succesfully Paired, Connecting ADB"
                 .\adb.exe connect ${Phone_IP}:${port}
                 Write-Output -InputObject "Succesfully Connected, starting Scrcpy"
-                .\scrcpy.exe --tcpip=${Phone_IP}:${Port} --turn-screen-off
+                .\scrcpy.exe --tcpip=${Phone_IP}:${Port} --turn-screen-off --power-off-on-close
                 Write-Output -InputObject "Scrcpy Has been Closed. Exiting"
                 exit
             }
