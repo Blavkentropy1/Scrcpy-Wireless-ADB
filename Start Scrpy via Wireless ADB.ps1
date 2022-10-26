@@ -17,29 +17,30 @@ new-variable -name Phone_IP -force -value (Read-Host -Prompt "Phone IP")
 cd $Scrpy_Location
 Do  {
     new-variable -name Port -force -value (Read-Host -Prompt "Connect Port")
-    Write-Output -InputObject (.\adb.exe connect ${Phone_IP}:${port} ) -OutVariable Output
+    Write-Output -InputObject (.\adb.exe connect ${Phone_IP}:${port} ) -OutVariable Output | Out-Null
     if ($Output -match "failed to connect to" -or $Output -match "no host") 
         {
-            Write-Output -InputObject "Unable to connect, attempting to Pair Phone"
+            Write-Output -InputObject "*****ADB Needs to Pair*****"
             do
             {
                 new-variable -name Pair_Code -force  -value (Read-Host -Prompt "Wifi Pairing code")
                 new-variable -name Pair_Port -force  -value (Read-Host -Prompt "Pair Port")
-                Write-Output -InputObject ( .\adb.exe pair ${Phone_IP}:${Pair_Port} $Pair_Code ) -OutVariable Output_Pair
+                Write-Output -InputObject ( .\adb.exe pair ${Phone_IP}:${Pair_Port} $Pair_Code ) -OutVariable Output_Pair | Out-Null
                     if ($Output_pair -match "Failed: Wrong password or connection was dropped." -or $Output_pair -match "Failed to parse address for pairing" -or $output_pair -match "failed to connect to" -or $Output_pair -match "Failed: Unable to start pairing client.") 
                     {
-                       Write-Output -InputObject "Wrong Wifi Pairing code, or Pair Port"                    
+                       Write-Output -InputObject "*****Wrong Wifi Pairing code, or Pair Port*****"
                     }
             }
             Until ($Output_pair -match "Successfully paired to")
                     Write-Output -InputObject "Device Paired"   
-                    Write-Output -InputObject (.\adb.exe connect ${Phone_IP}:${Port} ) -OutVariable Output      
+                    Write-Output -InputObject (.\adb.exe connect ${Phone_IP}:${Port} ) -OutVariable Output
          }
     if ($Output -match "10061" -or $Output -match "bad port number") 
         {
         Write-Output -InputObject "Incorrect Port Input"
         }
-    }   
+    }
 Until($Output -match "connected to")
+Write-Output -InputObject "Scrcpy is Starting"
 .\scrcpy.exe --tcpip=${Phone_IP}:${Port} ${Arg0} ${Arg1}
 .\adb.exe disconnect ${Phone_IP}:${Port}
