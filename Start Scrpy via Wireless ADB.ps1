@@ -11,8 +11,8 @@ $Arg1 = "--power-off-on-close"                          #Turns Screen off when C
 #=========================[  END:Parameters   ]============================
 <#
 #Set the following if you want to Manually set SCRPY Parameter
-new-variable -name Scrpy_Location -value (Read-Host -Prompt "Where is SCRCPY?")
-new-variable -name Phone_IP -value (Read-Host -Prompt "Phone IP")
+new-variable -name Scrpy_Location -force -value (Read-Host -Prompt "Where is SCRCPY?")
+new-variable -name Phone_IP -force -value (Read-Host -Prompt "Phone IP")
 #>
 cd $Scrpy_Location
 Do  {
