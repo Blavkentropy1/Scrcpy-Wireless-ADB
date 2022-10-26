@@ -4,24 +4,27 @@
     
 Write-Output -InputObject "Start Scrcpy via Wireless ADB"
 #=========================[ BEGIN:Parameters  ]============================
-$Scrpy_Location = "D:\Scrcpy\scrcpy-win64-v1.24"
-$Phone_IP = "192.168.0.xxx"
-$Arg0 = "-Sw"
-$Arg1 = "--power-off-on-close"
+$Scrpy_Location = "C:\scrcpy-win64-v1.X"                #Needs to Be Updated
+$Phone_IP = "192.168.0.xxx"                             #IP Needs to be Changed
+$Arg0 = "-Sw"                                           #Turn Screen Off
+$Arg1 = "--power-off-on-close"                          #Turns Screen off when Closed
 #=========================[  END:Parameters   ]============================
+<#
+#Set the following if you want to Manually set SCRPY Parameter
+new-variable -name Scrpy_Location -value (Read-Host -Prompt "Where is SCRCPY?")
+new-variable -name Phone_IP -value (Read-Host -Prompt "Phone IP")
+#>
 cd $Scrpy_Location
-
 Do  {
-#new-variable -name Phone_IP -force -value (Read-Host -Prompt "Phone IP")
-new-variable -name Port -force -value (Read-Host -Prompt "Connect Port")
-Write-Output -InputObject (.\adb.exe connect ${Phone_IP}:${port} ) -OutVariable Output
+    new-variable -name Port -force -value (Read-Host -Prompt "Connect Port")
+    Write-Output -InputObject (.\adb.exe connect ${Phone_IP}:${port} ) -OutVariable Output
     if ($Output -match "failed" -or $Output -match "no host") 
         {
             Write-Output -InputObject "Unable to connect, attempting to Pair Phone"
             do
             {
-                new-variable -name Pair_Code -force -value (Read-Host -Prompt "Wifi Pairing code")
-                new-variable -name Pair_Port -force -value (Read-Host -Prompt "Pair Port")
+                new-variable -name Pair_Code -value (Read-Host -Prompt "Wifi Pairing code")
+                new-variable -name Pair_Port -value (Read-Host -Prompt "Pair Port")
                 Write-Output -InputObject ( .\adb.exe pair ${Phone_IP}:${Pair_Port} $Pair_Code ) -OutVariable Output_Pair
                     if ($Output_pair -match "Failed: Wrong password or connection was dropped." -or $Output_pair -match "Failed to parse address for pairing" -or $output_pair -match "failed to connect to" -or $Output_pair -match "Failed: Unable to start pairing client.") 
                     {
