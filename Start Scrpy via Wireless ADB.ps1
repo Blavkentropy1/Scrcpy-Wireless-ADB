@@ -19,7 +19,6 @@ new-variable -name Port -force -value (Read-Host -Prompt "Connect Port")
 
 Write-Output -InputObject (.\adb.exe connect ${Phone_IP}:${port} ) -OutVariable Output
 
-
 if ($Output -match "failed" -or $Output -match "no host") 
         {
             Write-Output -InputObject "Unable to connect, attempting to Pair Phone"
@@ -40,14 +39,12 @@ if ($Output -match "failed" -or $Output -match "no host")
                     Write-Output -InputObject (.\adb.exe connect ${Phone_IP}:${Port} ) -OutVariable Output      
          }
        
-
 if ($Output -match "10061" -or $Output -match "bad port number") 
         {
         Write-Output -InputObject "Incorrect Port Input"
         }
     }
         
-
 Until($Output -match "connected to")
 Write-Output -InputObject "SCRPY Starting"
 .\scrcpy.exe --tcpip=${Phone_IP}:${Port} ${Arguments1} ${Arguments2}
