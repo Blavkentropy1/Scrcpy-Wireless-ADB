@@ -7,8 +7,7 @@ Write-Output -InputObject "Start Scrcpy via Wireless ADB"
 #=========================[ BEGIN:Parameters  ]============================
 $Scrpy_Location = "D:\Scrcpy\scrcpy-win64-v1.24"
 $Phone_IP = "192.168.0.101"
-$Arguments1 = "-Sw"
-$Arguments2 = "--power-off-on-close"
+$Arguments = "-Sw --power-off-on-close"
 #=========================[  END:Parameters   ]============================
 
 cd $Scrpy_Location
@@ -39,12 +38,11 @@ if ($Output -match "failed" -or $Output -match "no host")
                     Write-Output -InputObject (.\adb.exe connect ${Phone_IP}:${Port} ) -OutVariable Output      
          }
        
-if ($Output -match "10061" -or $Output -match "bad port number") 
-        {
-        Write-Output -InputObject "Incorrect Port Input"
-        }
+    if ($Output -match "10061" -or $Output -match "bad port number") 
+           {
+           Write-Output -InputObject "Incorrect Port Input"
+           }
     }
-        
+     
 Until($Output -match "connected to")
-Write-Output -InputObject "SCRPY Starting"
-.\scrcpy.exe --tcpip=${Phone_IP}:${Port} ${Arguments1} ${Arguments2}
+Start-Process -FilePath .\scrcpy.exe -ArgumentList "--tcpip=${Phone_IP}:${Port} ${Arguments}"
