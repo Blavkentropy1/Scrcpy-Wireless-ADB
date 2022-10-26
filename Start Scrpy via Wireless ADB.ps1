@@ -18,13 +18,13 @@ cd $Scrpy_Location
 Do  {
     new-variable -name Port -force -value (Read-Host -Prompt "Connect Port")
     Write-Output -InputObject (.\adb.exe connect ${Phone_IP}:${port} ) -OutVariable Output
-    if ($Output -match "failed" -or $Output -match "no host") 
+    if ($Output -match "failed to connect to" -or $Output -match "no host") 
         {
             Write-Output -InputObject "Unable to connect, attempting to Pair Phone"
             do
             {
-                new-variable -name Pair_Code -value (Read-Host -Prompt "Wifi Pairing code")
-                new-variable -name Pair_Port -value (Read-Host -Prompt "Pair Port")
+                new-variable -name Pair_Code -force  -value (Read-Host -Prompt "Wifi Pairing code")
+                new-variable -name Pair_Port -force  -value (Read-Host -Prompt "Pair Port")
                 Write-Output -InputObject ( .\adb.exe pair ${Phone_IP}:${Pair_Port} $Pair_Code ) -OutVariable Output_Pair
                     if ($Output_pair -match "Failed: Wrong password or connection was dropped." -or $Output_pair -match "Failed to parse address for pairing" -or $output_pair -match "failed to connect to" -or $Output_pair -match "Failed: Unable to start pairing client.") 
                     {
