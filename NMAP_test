@@ -19,7 +19,7 @@ cd $Scrpy_Location
 Do  {
     $NMAP_Dump = nmap -p 30000-49999 -T4 -A -v $Phone_IP 
     $port_Dirty = Select-String -inputobject $NMAP_Dump -Pattern "[0-9]+[0-9]+[0-9]+[0-9]+[0-9]+/tcp+ +open" -AllMatches | % { $_.Matches.Value }
-    $Port_Clean = $port_Dirty -replace "/tcp open"
+    $Port = $port_Dirty -replace "/tcp open"
     $Output = .\adb.exe connect ${Phone_IP}:${port} 
     if ($Output -match "failed to connect to" -or $Output -match "no host") 
         {
