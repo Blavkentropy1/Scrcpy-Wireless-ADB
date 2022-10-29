@@ -4,15 +4,15 @@
     Description   : Wirelessly connect ADB to device, and Pair ADB if required, with NMAP to find the Random Port #>
 "Start Scrcpy via Wireless ADB"
 #=========================[ BEGIN:Parameters  ]============================
-$Scrpy_Location = "D:\scrcpy-win64-v1.24"                #Needs to Be Updated
-$Phone_IP = "192.168.0.XXX"                             #IP Needs to be Changed
+$Scrpy_Location = "C:\scrcpy-win64-v1.24"                #Needs to Be Updated
+$Phone_IP = "192.168.0.xxx"                             #IP Needs to be Changed
 $Arg0 = "-Sw"                                           #Turn Screen Off
-$Arg1 = "--power-off-on-close"                          #Turns Screen off when Closed
+$Arg1 = "--power-off-on-close"                          #Turns Screen off when SCRCPY Closed
 #=========================[  END:Parameters   ]============================
 <#
 #Set the following if you want to Manually set SCRPY Parameter
-new-variable -name Scrpy_Location -force -value (Read-Host -Prompt "Where is SCRCPY?")
-new-variable -name Phone_IP -force -value (Read-Host -Prompt "Phone IP")
+new-variable -name Scrpy_Location -value (Read-Host -Prompt "Where is SCRCPY?")
+new-variable -name Phone_IP  -value (Read-Host -Prompt "Phone IP")
 #>
 cd $Scrpy_Location
 Do  {
@@ -21,7 +21,6 @@ Do  {
     $Port = $port_Dirty -replace "/tcp open"
     $Port1,$Port2 = $Port -split [Environment]::NewLine
     $Output = .\adb.exe connect ${Phone_IP}:${port1} 
-
     if ($Output -match "failed to connect to" -or $Output -match "no host") 
         {
             "*****ADB Needs to Pair*****"
@@ -37,6 +36,12 @@ Do  {
             }
             Until ($Output_pair -match "Successfully paired to")
             "Device Paired"   
+            $Output = .\adb.exe connect ${Phone_IP}:${port1} 
+            if ($Output -match "10061" -or $Output -match "bad port number") 
+                {
+                  "Trying Secondary Port"
+                  .\adb.exe connect ${Phone_IP}:${port2} 
+                }
          }
     if ($Output -match "10061" -or $Output -match "bad port number") 
         {
