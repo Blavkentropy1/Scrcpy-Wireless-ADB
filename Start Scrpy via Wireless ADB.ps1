@@ -2,7 +2,7 @@
     Scrcpy Site   : https://github.com/Genymobile/scrcpy
     Description   : Wirelessly connect ADB to device, and Pair ADB if required #>
     
-Write-Output -InputObject "Start Scrcpy via Wireless ADB"
+"Start Scrcpy via Wireless ADB"
 #=========================[ BEGIN:Parameters  ]============================
 $Scrpy_Location = "D:\Scrcpy\scrcpy-win64-v1.24"                #Needs to Be Updated
 $Phone_IP = "192.168.0.101"                             #IP Needs to be Changed
@@ -22,7 +22,7 @@ Do  {
         {
             "*****ADB Needs to Pair*****"
             do
-            {
+              {
                 new-variable -name Pair_Code -force  -value (Read-Host -Prompt "Wifi Pairing code")
                 new-variable -name Pair_Port -force  -value (Read-Host -Prompt "Pair Port")
                 $Output_Pair = .\adb.exe pair ${Phone_IP}:${Pair_Port} $Pair_Code
@@ -30,11 +30,11 @@ Do  {
                     {
                        "*****Wrong Wifi Pairing code, or Pair Port*****"
                     }
-            }
+              }
             Until ($Output_pair -match "Successfully paired to")
                     "Device Paired"   
                     $output = .\adb.exe connect ${Phone_IP}:${Port} 
-         }
+       }
     if ($Output -match "10061" -or $Output -match "bad port number") 
         {
         "*****Incorrect Port Input*****"
