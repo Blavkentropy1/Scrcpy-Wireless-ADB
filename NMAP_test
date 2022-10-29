@@ -6,7 +6,7 @@
 Write-Output -InputObject "Start Scrcpy via Wireless ADB"
 #=========================[ BEGIN:Parameters  ]============================
 $Scrpy_Location = "D:\Scrcpy\scrcpy-win64-v1.24"                #Needs to Be Updated
-$Phone_IP = "192.168.0.101"                             #IP Needs to be Changed
+$Phone_IP = "192.168.0.xxx"                             #IP Needs to be Changed
 $Arg0 = "-Sw"                                           #Turn Screen Off
 $Arg1 = "--power-off-on-close"                          #Turns Screen off when Closed
 #=========================[  END:Parameters   ]============================
@@ -18,7 +18,7 @@ new-variable -name Phone_IP -force -value (Read-Host -Prompt "Phone IP")
 cd $Scrpy_Location
  
 Do  {
-    $NMAP_Dump = nmap -p 30000-49999 -Pn 192.168.0.101
+    $NMAP_Dump = nmap -p 30000-49999 -Pn $Phone_IP
     $Port_Dirty = Select-String -inputobject $NMAP_Dump -Pattern "[0-9]+[0-9]+[0-9]+[0-9]+[0-9]+/tcp+ +open" -AllMatches | % { $_.Matches.Value }
     $Port = $port_Dirty -replace "/tcp open"
     $Port1,$Port2 = $Port.Split() 
