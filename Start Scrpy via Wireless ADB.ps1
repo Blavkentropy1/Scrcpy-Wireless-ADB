@@ -33,7 +33,7 @@ Do  {
             }
             Until ($Output_pair -match "Successfully paired to")
                     Write-Output -InputObject "Device Paired"   
-                    $output = .\adb.exe connect ${Phone_IP}:${Port} )
+                    $output = .\adb.exe connect ${Phone_IP}:${Port}
          }
     if ($Output -match "10061" -or $Output -match "bad port number") 
         {
