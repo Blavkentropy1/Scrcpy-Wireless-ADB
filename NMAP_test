@@ -1,6 +1,7 @@
-<#  Requires      : SCRCPY and ADB.exe (ADB.EXE is included in SCRCPY Files)
+<#  Requires      : SCRCPY and ADB.exe (ADB.EXE is included in SCRCPY Files) and NMAP
+    Assumption    : NMAP is set as a Enviromental Variable.
     Scrcpy Site   : https://github.com/Genymobile/scrcpy
-    Description   : Wirelessly connect ADB to device, and Pair ADB if required #>
+    Description   : Wirelessly connect ADB to device, and Pair ADB if required, with NMAP to find the Random Port #>
     
 Write-Output -InputObject "Start Scrcpy via Wireless ADB"
 #=========================[ BEGIN:Parameters  ]============================
@@ -17,10 +18,12 @@ new-variable -name Phone_IP -force -value (Read-Host -Prompt "Phone IP")
 cd $Scrpy_Location
  
 Do  {
-    $NMAP_Dump = nmap -p 30000-49999 -T4 -A -v $Phone_IP 
-    $port_Dirty = Select-String -inputobject $NMAP_Dump -Pattern "[0-9]+[0-9]+[0-9]+[0-9]+[0-9]+/tcp+ +open" -AllMatches | % { $_.Matches.Value }
+    $NMAP_Dump = nmap -p 30000-49999 -Pn 192.168.0.101
+    $Port_Dirty = Select-String -inputobject $NMAP_Dump -Pattern "[0-9]+[0-9]+[0-9]+[0-9]+[0-9]+/tcp+ +open" -AllMatches | % { $_.Matches.Value }
     $Port = $port_Dirty -replace "/tcp open"
-    $Output = .\adb.exe connect ${Phone_IP}:${port} 
+    $Port1,$Port2 = $Port.Split() 
+    $Output = .\adb.exe connect ${Phone_IP}:${port1} 
+
     if ($Output -match "failed to connect to" -or $Output -match "no host") 
         {
             Write-Output -InputObject "*****ADB Needs to Pair*****"
@@ -40,10 +43,20 @@ Do  {
          }
     if ($Output -match "10061" -or $Output -match "bad port number") 
         {
-        Write-Output -InputObject "*****Incorrect Port Input*****"
+        .\adb.exe connect ${Phone_IP}:${port2} 
+         if ($Output -match "10061" -or $Output -match "bad port number")
+            {
+            Write-Output -InputObject "*****Incorrect Port Input*****"
+            Pause
+            }
         }
     }
 Until($Output -match "connected to")
 Write-Output -InputObject "Scrcpy is Starting"
-.\scrcpy.exe --tcpip=${Phone_IP}:${Port} ${Arg0} ${Arg1}
-.\adb.exe disconnect ${Phone_IP}:${Port}
+$Scrpy = .\scrcpy.exe --tcpip=${Phone_IP}:${Port1} ${Arg0} ${Arg1}
+    if ($scrpy -match "ERROR:" )
+        {
+        .\scrcpy.exe --tcpip=${Phone_IP}:${Port2} ${Arg0} ${Arg1}
+        }
+.\adb.exe disconnect ${Phone_IP}:${Port1}
+.\adb.exe disconnect ${Phone_IP}:${Port2}
