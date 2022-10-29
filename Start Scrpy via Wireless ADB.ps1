@@ -5,7 +5,7 @@
 Write-Output -InputObject "Start Scrcpy via Wireless ADB"
 #=========================[ BEGIN:Parameters  ]============================
 $Scrpy_Location = "D:\Scrcpy\scrcpy-win64-v1.24"                #Needs to Be Updated
-$Phone_IP = "192.168.0.101"                             #IP Needs to be Changed
+$Phone_IP = "192.168.0.xxx"                             #IP Needs to be Changed
 $Arg0 = "-Sw"                                           #Turn Screen Off
 $Arg1 = "--power-off-on-close"                          #Turns Screen off when Closed
 #=========================[  END:Parameters   ]============================
@@ -33,7 +33,7 @@ Do  {
             }
             Until ($Output_pair -match "Successfully paired to")
                     Write-Output -InputObject "Device Paired"   
-                    Write-Output -InputObject (.\adb.exe connect ${Phone_IP}:${Port} ) -OutVariable Output
+                    $output = .\adb.exe connect ${Phone_IP}:${Port} )
          }
     if ($Output -match "10061" -or $Output -match "bad port number") 
         {
