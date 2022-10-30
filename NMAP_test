@@ -2,10 +2,9 @@
     Assumption    : NMAP is set as a Enviromental Variable.
     Scrcpy Site   : https://github.com/Genymobile/scrcpy
     Description   : Wirelessly connect ADB to device, and Pair ADB if required, with NMAP to find the Random Port #>
-"Start Scrcpy via Wireless ADB and NMAP"
 #=========================[ BEGIN:Parameters  ]============================
-$Scrpy_Location = "C:\scrcpy-win64-v1.24"                #Needs to Be Updated
-$Phone_IP = "192.168.0.xxx"                             #IP Needs to be Changed
+$Scrpy_Location = "D:\Scrcpy\scrcpy-win64-v1.24"                #Needs to Be Updated
+$Phone_IP = "192.168.0.101"                             #IP Needs to be Changed
 $Arg0 = "-Sw"                                           #Turn Screen Off
 $Arg1 = "--power-off-on-close"                          #Turns Screen off when SCRCPY Closed
 #=========================[  END:Parameters   ]============================
@@ -14,74 +13,87 @@ $Arg1 = "--power-off-on-close"                          #Turns Screen off when S
 new-variable -name Scrpy_Location -value (Read-Host -Prompt "Where is SCRCPY?")
 new-variable -name Phone_IP  -value (Read-Host -Prompt "Phone IP")
 #>
-
 cd $Scrpy_Location
-Do  {
-    $NMAP_Dump = nmap -p 30000-49999  -Pn $Phone_IP
-    $Port = Select-String -inputobject $NMAP_Dump -Pattern "[0-9]+[0-9]+[0-9]+[0-9]+[0-9]" -AllMatches | % { $_.Matches.Value }
-    $Port1,$Port2,$Port3,$Port4 = $Port -split [Environment]::NewLine
-   
+"Scanning Ports, This make take some time"
+$NMAP_Dump = nmap -p 30000-49999  -Pn $Phone_IP
+"Scan Complete"
+$Port = Select-String -inputobject $NMAP_Dump -Pattern "[0-9]+[0-9]+[0-9]+[0-9]+[0-9]/tcp open" -AllMatches | % { $_.Matches.Value } 
+$Port = -replace "/tcp open"
+$Port1,$Port2,$Port3,$Port4 = $Port -split [Environment]::NewLine
+Do  { 
             "Trying First Found Port"
                 $Try1 = .\adb.exe connect ${Phone_IP}:${port1} 
                       If ($Try1 -match "connected to")
-                      {$Output = $try1
-                      Break}
+                         {
+                         $Good_port = $Try1
+                         Break
+                         }
                       If ($Try1 -match "Already Connected")
-                      {.\adb.exe disconnect ${Phone_IP}:${Port1} }
+                        {
+                        .\adb.exe disconnect ${Phone_IP}:${Port1}
+                        }
+                      "Didnt Connect, Trying Next port"
 
             "Trying Second Found Port"
                 $Try2 = .\adb.exe connect ${Phone_IP}:${port2} 
                       If ($Try2 -match "connected to")
-                      {$Output = $try2
-                      Break}
+                        {
+                        $Good_port = $Try2
+                        Break
+                        }
                       If ($Try2 -match "Already Connected")
-                      {.\adb.exe disconnect ${Phone_IP}:${Port2} }
+                        {
+                        .\adb.exe disconnect ${Phone_IP}:${Port2}
+                        }
+                      "Didnt Connect, Trying Next port"
 
             "Trying Third Found Port"
                 $Try3 =.\adb.exe connect ${Phone_IP}:${port3} 
                       If ($Try3 -match "connected to")
-                      {$Output = $try3
-                      Break}
+                        {
+                        $Good_port = $Try3
+                        Break
+                        }
                       If ($Try3 -match "Already Connected")
-                      {.\adb.exe disconnect ${Phone_IP}:${Port3} }
+                        {
+                        .\adb.exe disconnect ${Phone_IP}:${Port3}
+                        }
+                      "Didnt Connect, Trying Next port"
 
              "Trying Fouth Found Port"
                 $Try4 = .\adb.exe connect ${Phone_IP}:${port4} 
                       If ($Try4 -match "connected to")
-                      {$Output = $try4
-                      Break}
+                        {
+                        $Good_port = $Try4
+                        Break
+                        }
                       If ($Try4 -match "Already Connected")
-                      {.\adb.exe disconnect ${Phone_IP}:${Port4} }
+                      {
+                      .\adb.exe disconnect ${Phone_IP}:${Port4}
+                      }
 
-                             "*****Port Scan is Bad Trying to Pair******"
-                             "Current Ports Open $Port1,$Port2,$Port3,$Port4"
-                             Pause
+                      "*****Port Scan is Bad Trying to Pair******"
+                      "Current Ports Open $Port1,$Port2,$Port3,$Port4"
 
-           if ($Try1,$Try2,$Try3,$Try4 -match "failed to connect to" -or $Output -match "no host" -notmatch "connected to") 
+           if ($Try1,$Try2,$Try3,$Try4 -match "failed to connect to" -or $Good_port -match "no host" -notmatch "connected to") 
             {
                     "*****ADB Needs to Pair*****"
-                    do
+               do
                  {
                 new-variable -name Pair_Code -force -value (Read-Host -Prompt "Wifi Pairing code")
                 new-variable -name Pair_Port -force -value (Read-Host -Prompt "Pair Port")
                 $Output_Pair = .\adb.exe pair ${Phone_IP}:${Pair_Port} $Pair_Code
                 
-                If ($Output_pair -match "Successfully paired")
-                    {
-                    $Good_port -replace "connected to ${Phone_IP}:" |out-null
-                    .\adb.exe connect ${Phone_IP}:${Good_port}
-                    }
-
-                    if ($Output_pair -match "Failed: Wrong password or connection was dropped." -or $Output_pair -match "Failed to parse address for pairing" -or $output_pair -match "failed to connect to" -or $Output_pair -match "Failed: Unable to start pairing client.") 
-                        {
-                       "*****Wrong Wifi Pairing code, or Pair Port*****"
-                        }
-                   } 
-                   Until ($Good_port -match "connected to") 
+                     if ($Output_pair -match "Failed: Wrong password or connection was dropped." -or $Output_pair -match "Failed to parse address for pairing" -or $output_pair -match "failed to connect to" -or $Output_pair -match "Failed: Unable to start pairing client.") 
+                          {
+                          "*****Wrong Wifi Pairing code, or Pair Port*****"
+                          }
+                 } 
+                   Until ($Output_pair -match "Successfully paired to") 
              }
     }
 Until ($Good_port -match "connected to") 
-$Good_port -replace "connected to ${Phone_IP}:" |out-null
+$Good_port = $Good_port -replace "connected to ${Phone_IP}:"
 "Scrcpy is Starting"
 .\scrcpy.exe --tcpip=${Phone_IP}:${Good_port} ${Arg0} ${Arg1}    
 .\adb.exe disconnect ${Phone_IP}:${Good_port}
