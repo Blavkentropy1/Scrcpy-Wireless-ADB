@@ -13,13 +13,14 @@ $Arg1 = "--power-off-on-close"                          #Turns Screen off when S
 new-variable -name Scrpy_Location -value (Read-Host -Prompt "Where is SCRCPY?")
 new-variable -name Phone_IP  -value (Read-Host -Prompt "Phone IP")
 #>
+
 Do  {
 CD $Scrpy_Location
 "Turn the Screen on"
 Sleep 3
-Get-Date -format
+Get-Date -format t
 "Scanning Ports, This make take some time"
-#$NMAP = nmap -p 30000-49999  -Pn $Phone_IP
+$NMAP = nmap -p 30000-49999  -Pn $Phone_IP
 "Scan Complete"
     If ($NMAP -match "(0 hosts up)" ) 
          { 
@@ -28,15 +29,15 @@ Get-Date -format
          Pause
          }
 
-#$Port = Select-String -inputobject $NMAP -Pattern "[0-9]+[0-9]+[0-9]+[0-9]+[0-9]/tcp open" -AllMatches | % { $_.Matches.Value } 
-$Port = Select-String -inputobject $NMAP -Pattern "/d{5}/tcp open" -AllMatches | % { $_.Matches.Value } 
-#$Port = -replace "/tcp open"
+$Port = Select-String -inputobject $NMAP -Pattern "[0-9]+[0-9]+[0-9]+[0-9]+[0-9]/tcp open" -AllMatches | % { $_.Matches.Value } 
+$Port = $Port -replace "/tcp open"
 $Port1,$Port2,$Port3,$Port4 = $Port -split [Environment]::NewLine
+
     }
-Until ($NMAP -Match "([1-9] hosts up)" )
+Until ($NMAP -Match "/tcp open")  
 
 Do  { 
-            "Trying First Found Port"
+            "Trying First Found Port $Port1"
                 $Try1 = .\adb.exe connect ${Phone_IP}:${Port1} 
                       If ($Try1 -match "connected to")
                          {
@@ -45,24 +46,26 @@ Do  {
                          }
                       If ($Try1 -match "Already Connected")
                         {
-                        .\adb.exe disconnect ${Phone_IP}:${Port1}
+                         $Good_port = $Try1
+                         Break
                         }
                       "Didnt Connect, Trying Next port"
 
-            "Trying Second Found Port"
+            "Trying Second Found Port $Port2"
                 $Try2 = .\adb.exe connect ${Phone_IP}:${Port2} 
                       If ($Try2 -match "connected to")
                         {
                         $Good_port = $Try2
                         Break
                         }
-                      If ($Try2 -match "Already Connected")
+                      If ($Try2 -match "already connected to")
                         {
-                        .\adb.exe disconnect ${Phone_IP}:${Port2}
+                        $Good_port = $Try2
+                        Break
                         }
                       "Didnt Connect, Trying Next port"
 
-            "Trying Third Found Port"
+            "Trying Third Found Port $Port3"
                 $Try3 =.\adb.exe connect ${Phone_IP}:${Port3} 
                       If ($Try3 -match "connected to")
                         {
@@ -71,11 +74,12 @@ Do  {
                         }
                       If ($Try3 -match "Already Connected")
                         {
-                        .\adb.exe disconnect ${Phone_IP}:${Port3}
+                        $Good_port = $Try3
+                        Break
                         }
                       "Didnt Connect, Trying Next port"
 
-             "Trying Fouth Found Port"
+             "Trying Fouth Found Port $Port4"
                 $Try4 = .\adb.exe connect ${Phone_IP}:${Port4} 
                       If ($Try4 -match "connected to")
                         {
@@ -84,13 +88,14 @@ Do  {
                         }
                       If ($Try4 -match "Already Connected")
                       {
-                      .\adb.exe disconnect ${Phone_IP}:${Port4}
+                      $Good_port = $Try4
+                      Break
                       }
 
                       "*****Port Scan is Bad Trying to Pair******"
                       "Current Ports Open $Port1,$Port2,$Port3,$Port4"
 
-           If ($Try1,$Try2,$Try3,$Try4 -match "failed to connect to" -or $Good_port -match "no host" -notmatch "connected to") 
+           If ($Try1,$Try2,$Try3,$Try4 -match "failed to connect to" -or $Try1,$Try2,$Try3,$Try4 -match "no host") 
             {
                Do
                  {
@@ -106,9 +111,15 @@ Do  {
                    Until ($Output_pair -match "Successfully paired to") 
              }
     }
-Until ($Good_port -match "connected to") 
-
-$Good_port = $Good_port -replace "connected to ${Phone_IP}:"
+Until ($Good_port -match "connected to" -or $Good_port -match "already connect to") 
+if ($Good_port  -match "already connected to ${Phone_IP}:")
+    {
+    $Good_port = $Good_port -replace "already connected to ${Phone_IP}:"
+    }
+if ($Good_port  -match "connected to ${Phone_IP}:")
+    {
+    $Good_port = $Good_port -replace "connected to ${Phone_IP}:"
+    }
 "Scrcpy is Starting"
 .\scrcpy.exe --tcpip=${Phone_IP}:${Good_port} ${Arg0} ${Arg1}    
 .\adb.exe disconnect ${Phone_IP}:${Good_port}
