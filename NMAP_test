@@ -16,25 +16,25 @@ new-variable -name Phone_IP  -value (Read-Host -Prompt "Phone IP")
 
 Do  {
 CD $Scrpy_Location
-"Turn the Screen on"
-Sleep 3
-Get-Date -format t
+$Scan_Start = get-date -format t
+"Scan Started at $Scan_Start" 
 "Scanning Ports, This make take some time"
 $NMAP = nmap -p 30000-49999  -Pn $Phone_IP
-"Scan Complete"
+$Scan_Stop = get-date -format t
+$Scan_Time = New-TimeSpan -Start $Scan_Start -End $Scan_Stop
     If ($NMAP -match "(0 hosts up)" ) 
          { 
          "No Open Ports found, or Phone not found"
          "Is The Host on the same network with Wireless Debugging turned on?"
          Pause
          }
-
 $Port = Select-String -inputobject $NMAP -Pattern "[0-9]+[0-9]+[0-9]+[0-9]+[0-9]/tcp open" -AllMatches | % { $_.Matches.Value } 
 $Port = $Port -replace "/tcp open"
 $Port1,$Port2,$Port3,$Port4 = $Port -split [Environment]::NewLine
-
     }
-Until ($NMAP -Match "/tcp open")  
+Until ($NMAP -Match "/tcp open") 
+ 
+"Scan took $Scan_time TotalMinutes"
 
 Do  { 
             "Trying First Found Port $Port1"
@@ -112,14 +112,17 @@ Do  {
              }
     }
 Until ($Good_port -match "connected to" -or $Good_port -match "already connect to") 
+
 if ($Good_port  -match "already connected to ${Phone_IP}:")
     {
     $Good_port = $Good_port -replace "already connected to ${Phone_IP}:"
     }
+
 if ($Good_port  -match "connected to ${Phone_IP}:")
     {
     $Good_port = $Good_port -replace "connected to ${Phone_IP}:"
     }
+
 "Scrcpy is Starting"
 .\scrcpy.exe --tcpip=${Phone_IP}:${Good_port} ${Arg0} ${Arg1}    
 .\adb.exe disconnect ${Phone_IP}:${Good_port}
