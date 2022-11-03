@@ -44,8 +44,8 @@ Until ($NMAP -Match "/tcp open")
 "Scan took $Scan_time Minutes"
 
 Do  { 
-            .\adb.exe start-server
             "Trying First Found Port $Port1"
+            .\adb.exe disconnect ${Phone_IP}:${Port1} | out-null
                 $Try1 = .\adb.exe connect ${Phone_IP}:${Port1} 
                       If ($Try1 -match "connected to")
                          {
@@ -60,6 +60,7 @@ Do  {
                       "Didnt Connect, Trying Next port"
 
             "Trying Second Found Port $Port2"
+            .\adb.exe disconnect ${Phone_IP}:${Port2} | out-null
                 $Try2 = .\adb.exe connect ${Phone_IP}:${Port2} 
                       If ($Try2 -match "connected to")
                         {
@@ -74,13 +75,9 @@ Do  {
                       "Didnt Connect, Trying Next port"
 
             "Trying Third Found Port $Port3"
+            .\adb.exe disconnect ${Phone_IP}:${Port3} | out-null
                 $Try3 =.\adb.exe connect ${Phone_IP}:${Port3} 
                       If ($Try3 -match "connected to")
-                        {
-                        $Good_port = $Try3
-                        Break
-                        }
-                      If ($Try3 -match "Already Connected")
                         {
                         $Good_port = $Try3
                         Break
@@ -88,31 +85,23 @@ Do  {
                       "Didnt Connect, Trying Next port"
 
              "Trying Fouth Found Port $Port4"
+             .\adb.exe disconnect ${Phone_IP}:${Port4} | out-null
                 $Try4 = .\adb.exe connect ${Phone_IP}:${Port4} 
                       If ($Try4 -match "connected to")
                         {
                         $Good_port = $Try4
                         Break
                         }
-                      If ($Try4 -match "Already Connected")
-                      {
-                      $Good_port = $Try4
-                      Break
-                      }
+                 "Didnt Connect, Trying Next port"
 
              "Trying Fith Found Port $Port5"
+             .\adb.exe disconnect ${Phone_IP}:${Port5} | out-null
                 $Try5 = .\adb.exe connect ${Phone_IP}:${Port5} 
                       If ($Try5 -match "connected to")
                         {
                         $Good_port = $Try5
                         Break
                         }
-                      If ($Try5 -match "Already Connected")
-                      {
-                      $Good_port = $Try5
-                      Break
-                      }
-
                       "*****Port Scan is Bad Trying to Pair******"
                       "Current Ports Open $Port1,$Port2,$Port3,$Port4,$Port5"
 
