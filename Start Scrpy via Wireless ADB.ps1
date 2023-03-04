@@ -1,16 +1,17 @@
-<#  Requires      : SCRCPY and ADB.exe (ADB.EXE is included in SCRCPY Files)
+<#  Requires      : SCRCPY and .\adb.exe (.\adb.exe is included in SCRCPY Files)
     Scrcpy Site   : https://github.com/Genymobile/scrcpy
     Description   : Wirelessly connect ADB to device, and Pair ADB if required #>
     
 "Start Scrcpy via Wireless ADB"
 #=========================[ BEGIN:Parameters  ]============================
-$Scrpy_Location = "D:\Scrcpy\scrcpy-win64-v1.24"                #Needs to Be Updated
-$Phone_IP = "192.168.0.101"                             #IP Needs to be Changed
+$Scrpy_Location = "C:/Scrpy"                           #Needs to Be Updated
+$Phone_IP = "192.168.xxx.xxx"                           #IP Needs to be Changed
 $Arg0 = "-Sw"                                           #Turn Screen Off
 $Arg1 = "--power-off-on-close"                          #Turns Screen off when Closed
+$Arg2 = "--stay-awake"						  #Stay Awake	
 #=========================[  END:Parameters   ]============================
 <#
-#Set the following if you want to Manually set SCRPY Parameter
+#Manual Input - Set the following if you want to Manually set SCRPY Parameter
 new-variable -name Scrpy_Location -force -value (Read-Host -Prompt "Where is SCRCPY?")
 new-variable -name Phone_IP -force -value (Read-Host -Prompt "Phone IP")
 #>
