@@ -1,19 +1,29 @@
-<#  Requires      : SCRCPY and ADB.exe (ADB.EXE is included in SCRCPY Files) and NMAP
+<#  Requires      : SCRCPY and .\adb.exe (.\adb.exe is included in SCRCPY Files) and NMAP
     Assumption    : NMAP is set as a Enviromental Variable.
     Scrcpy Site   : https://github.com/Genymobile/scrcpy
     Description   : Wirelessly connect ADB to device, and Pair ADB if required, with NMAP to find the Random Port #>
-#=========================[ BEGIN:Parameters  ]============================
-$Scrpy_Location = "D:\Scrcpy\scrcpy-win64-v1.24"                #Needs to Be Updated
-$Phone_IP = "192.168.0.101"                             #IP Needs to be Changed
-$Arg0 = "-Sw"                                           #Turn Screen Off
-$Arg1 = "--power-off-on-close"                          #Turns Screen off when SCRCPY Closed
-#=========================[  END:Parameters   ]============================
-<#
-#Set the following if you want to Manually set SCRPY Parameter
-new-variable -name Scrpy_Location -value (Read-Host -Prompt "Where is SCRCPY?")
-new-variable -name Phone_IP  -value (Read-Host -Prompt "Phone IP")
-#>
 
+
+#=========================[  Parameters  ]============================
+$Scrpy_Location = "D:\Misc Programs\Scrcpy"             #Needs to Be Updated
+$Phone_IP = "192.168.0.101"                             #IP Needs to be Changed
+
+#=========================[  Arguaments  ]============================
+$Arg1 = "-Sw"                                           #Turn Screen Off
+$Arg2 = "--power-off-on-close"                          #Turns Screen off when SCRCPY Closed
+$Arg3 = "--stay-awake"					                #Stay Awake					              
+
+#=========================[  Optional Variables  ]============================
+
+#Set the following if you want to Manually set SCRPY Parameter
+<
+#new-variable -name Scrpy_Location -value (Read-Host -Prompt "Where is SCRCPY?")
+#new-variable -name Phone_IP  -value (Read-Host -Prompt "Phone IP")
+>
+
+#=========================[  Start Script  ]============================
+
+<
 Do  {
 CD $Scrpy_Location
 "Unlock Phone"
@@ -139,5 +149,5 @@ if ($Good_port  -match "connected to ${Phone_IP}:")
     }
 
 "ADB is Connected, Scrcpy is Starting"
-.\scrcpy.exe --tcpip=${Phone_IP}:${Good_port} ${Arg0} ${Arg1}  
+.\scrcpy.exe --tcpip=${Phone_IP}:${Good_port} ${Arg0} ${Arg1} ${Arg2}  
 .\adb.exe disconnect ${Phone_IP}:${Good_port}
