@@ -1,15 +1,14 @@
-﻿<# 
-    Requires: .\adb.exe (included in SCRCPY files) and NMAP
-    Assumption: NMAP is set as an environmental variable
+<# 
+    Requires: .\adb.exe and nmap (paths to be provided as arguments)
+    Assumption: nmap is set as an environmental variable
     Description: Wirelessly connect ADB to a device and pair ADB if required, using NMAP to find a random port
 #>
 
-# =========================[ Parameters ]============================
-$Phone_IP = "192.168.0.101"  # Update to your phone's IP address
-
-# =========================[ Optional Variables ]====================
-# Uncomment the following lines to manually set parameters
-# $Phone_IP = Read-Host -Prompt "Phone IP"
+param (
+    [string]$AdbLocation = "D:\Misc Programs\Scrcpy\adb.exe",    # Path to adb executable
+    [string]$NmapLocation = "nmap",        # Path to nmap executable
+    [string]$Phone_IP = "192.168.0.101"   # Update to your phone's IP address
+)
 
 # =========================[ Start Script ]===========================
 
@@ -22,7 +21,7 @@ Do {
     $Scan_Start = Get-Date
     Write-Output "Scan Started at $($Scan_Start.ToString('t'))"
     Write-Output "Scanning Ports, this may take some time"
-    $NmapOutput = nmap -p 30000-49999 -T5 -v $Phone_IP | Tee-Object -Variable NMAP
+    $NmapOutput = & $NmapLocation -p 30000-49999 -T5 -v $Phone_IP | Tee-Object -Variable NMAP
     $Scan_Stop = Get-Date
     $Scan_Time = New-TimeSpan -Start $Scan_Start -End $Scan_Stop
     Write-Output "Scan took $($Scan_Time.TotalMinutes) minutes"
@@ -53,8 +52,8 @@ $GoodPort = $null
 # Try connecting to each port
 foreach ($Port in @($Port1, $Port2, $Port3, $Port4, $Port5)) {
     Write-Output "Trying port $Port"
-    .\adb.exe disconnect "${Phone_IP}:${Port}" | Out-Null
-    $ConnectionResult = .\adb.exe connect "${Phone_IP}:${Port}"
+    & $AdbLocation disconnect "${Phone_IP}:${Port}" | Out-Null
+    $ConnectionResult = & $AdbLocation connect "${Phone_IP}:${Port}"
 
     if ($ConnectionResult -match "connected to" -or $ConnectionResult -match "already connected to") {
         $GoodPort = $Port
@@ -73,7 +72,7 @@ if (-not $GoodPort) {
     Do {
         $Pair_Code = Read-Host -Prompt "Enter Wi-Fi Pairing Code"
         $Pair_Port = Read-Host -Prompt "Enter Pairing Port"
-        $PairResult = .\adb.exe pair "${Phone_IP}:${Pair_Port}" $Pair_Code
+        $PairResult = & $AdbLocation pair "${Phone_IP}:${Pair_Port}" $Pair_Code
 
         if ($PairResult -match "Failed: Wrong password or connection was dropped." -or
             $PairResult -match "Failed to parse address for pairing" -or
@@ -86,8 +85,8 @@ if (-not $GoodPort) {
     # Retry connecting after pairing
     foreach ($Port in @($Port1, $Port2, $Port3, $Port4, $Port5)) {
         Write-Output "Trying port $Port after pairing"
-        .\adb.exe disconnect "${Phone_IP}:${Port}" | Out-Null
-        $ConnectionResult = .\adb.exe connect "${Phone_IP}:${Port}"
+        & $AdbLocation disconnect "${Phone_IP}:${Port}" | Out-Null
+        $ConnectionResult = & $AdbLocation connect "${Phone_IP}:${Port}"
 
         if ($ConnectionResult -match "connected to" -or $ConnectionResult -match "already connected to") {
             $GoodPort = $Port
